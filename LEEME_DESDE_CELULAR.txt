@@ -1,0 +1,26 @@
+MI TIENDA POS — PUBLICAR EN GITHUB PAGES DESDE EL CELULAR
+========================================================
+
+Este paquete contiene los archivos del sitio web listos para subir al repositorio. No es un APK ni un EXE.
+
+PUBLICAR
+1. Entra al repositorio Mi-Tienda-POS-Android en GitHub.
+2. En la pestaña Code, pulsa Add file > Upload files.
+3. Extrae este ZIP en tu celular y sube los archivos que están dentro (index.html, manifest.json, sw.js y este LEEME).
+   Deben quedar en la raíz del repositorio, al mismo nivel que README.md. No subas la carpeta contenedora.
+4. Pulsa Commit changes.
+5. En el repositorio abre Settings > Pages.
+6. En Build and deployment, elige Deploy from a branch.
+7. Branch: main; carpeta: /(root). Pulsa Save.
+8. Espera unos minutos. La dirección suele ser https://USUARIO.github.io/Mi-Tienda-POS-Android/; reemplaza USUARIO por tu nombre de usuario de GitHub.
+9. Abre esa dirección en Chrome en el celular y en el computador.
+
+AÑADIR A LA PANTALLA DE INICIO
+En Chrome Android abre el sitio publicado, toca el menú ⋮ y elige “Añadir a pantalla de inicio” o “Instalar aplicación”, si aparece.
+
+DATOS Y SINCRONIZACIÓN
+- Como elegiste la opción 2, cada dispositivo guardará sus propios datos en su navegador.
+- Las ventas no se sincronizan entre celular y computador.
+- Los datos quedan guardados localmente. Usa la opción de copia de seguridad dentro del POS y guarda los archivos exportados.
+- Para cargar por primera vez y activar el modo sin conexión, abre el sitio con internet y espera que termine de cargar. Después se puede probar sin conexión.
+- GitHub Pages necesita el repositorio con la configuración anterior y una publicación exitosa; no se publica automáticamente solo por subir los archivos.

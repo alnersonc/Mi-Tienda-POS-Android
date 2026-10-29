@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14532d">
+<title>Mi Tienda POS</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{font-family:Arial,sans-serif;color:#17221b;background:#f3f6f3}*{box-sizing:border-box}body{margin:0}header{background:#14532d;color:white;padding:18px 16px}header h1{margin:0;font-size:1.55rem}header p{margin:5px 0 0;font-size:.9rem}.wrap{max-width:1100px;margin:auto;padding:14px}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.nav button,.btn{border:0;border-radius:9px;padding:12px 14px;font-weight:700;cursor:pointer;background:#166534;color:white}.nav button{background:white;color:#14532d;border:1px solid #cbd5ce}.nav button.active{background:#14532d;color:white}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{background:white;border:1px solid #d8e0d9;border-radius:12px;padding:15px;margin-bottom:12px}.stat{font-size:1.55rem;font-weight:800;margin-top:6px}.muted{color:#617067;font-size:.9rem}label{display:block;font-size:.9rem;margin:8px 0}input,select{width:100%;padding:11px;border:1px solid #bbc8be;border-radius:8px;background:white;font-size:16px;margin-top:4px}form .grid{gap:8px}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;padding:9px 6px;border-bottom:1px solid #e2e8e3}th{color:#526056}.tablewrap{overflow-x:auto}.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.smallbtn{padding:7px 9px;border:1px solid #cbd5ce;border-radius:7px;background:white;color:#14532d;cursor:pointer}.danger{color:#991b1b}.notice{padding:10px;border-radius:8px;background:#ecfdf5;margin:8px 0;font-size:.9rem}.hidden{display:none!important}.right{text-align:right}.full{width:100%}footer{padding:20px;text-align:center;color:#617067;font-size:.8rem}@media print{header,.nav,.noprint,footer{display:none!important}body{background:white}.wrap{padding:0}.card{border:0}#receiptPrint{display:block!important}}
+</style>
+</head>
+<body>
+<header><h1>🏪 Mi Tienda POS</h1><p>Punto de venta · Pesos colombianos · Guarda datos en este dispositivo</p></header>
+<main class="wrap">
+<div class="notice" id="storageNote">Tus datos se guardan en este dispositivo. Exporta una copia de seguridad con frecuencia.</div>
+<nav class="nav noprint">
+<button class="active" data-page="sales">🛒 Ventas</button><button data-page="products">📦 Inventario</button><button data-page="cash">💰 Caja y reportes</button><button data-page="backup">💾 Copias</button>
+</nav>
+<section id="page-sales">
+<div class="grid">
+<div class="card"><div class="muted">Total de la venta</div><div class="stat" id="cartTotal">$0</div></div>
+<div class="card"><div class="muted">Productos en carrito</div><div class="stat" id="cartCount">0</div></div>
+</div>
+<div class="card noprint">
+<h2>Buscar producto</h2>
+<label>Nombre o código de barras<input id="searchProduct" placeholder="Escribe nombre o escanea el código" autocomplete="off"></label>
+<div id="productMatches"></div>
+<p class="muted">Si tu lector de códigos funciona como teclado, coloca el cursor en el buscador y escanea.</p>
+</div>
+<div class="card">
+<h2>Carrito</h2><div class="tablewrap"><table><thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th class="noprint">Acción</th></tr></thead><tbody id="cartRows"></tbody></table></div>
+<div class="grid noprint"><label>Medio de pago<select id="payment"><option>Efectivo</option><option>Nequi</option><option>Transferencia</option><option>Tarjeta</option><option>Otro</option></select></label><label>Dinero recibido (efectivo)<input id="cashReceived" type="number" min="0" step="1" placeholder="Opcional"></label></div>
+<div class="row"><strong>Total</strong><strong id="cartTotal2">$0</strong></div><p id="changeLine" class="muted"></p>
+<div class="grid noprint" style="margin-top:12px"><button class="btn" id="checkout">Cobrar y guardar venta</button><button class="smallbtn" id="clearCart">Vaciar carrito</button></div><div id="saleMessage" aria-live="polite"></div>
+</div>
+<div class="card hidden" id="receiptPrint"></div>
+</section>
+<section id="page-products" class="hidden">
+<div class="card"><h2>Registrar producto</h2><form id="productForm">
+<div class="grid">
+<label>Nombre *<input id="pName" required maxlength="100" placeholder="Ej. Arroz 1 kg"></label>
+<label>Código / barras *<input id="pCode" required maxlength="80" placeholder="Ej. 7701234567890"></label>
+<label>Costo unitario ($ COP)<input id="pCost" type="number" min="0" step="1" value="0" required></label>
+<label>Precio de venta ($ COP)<input id="pPrice" type="number" min="1" step="1" required></label>
+<label>Existencias iniciales<input id="pStock" type="number" min="0" step="1" value="0" required></label>
+<label>Alerta de pocas existencias<input id="pMin" type="number" min="0" step="1" value="3" required></label>
+</div><button class="btn" type="submit">Guardar producto</button><span id="productMessage" class="muted"></span></form></div>
+<div class="card"><h2>Inventario</h2><label>Filtrar inventario<input id="filterStock" placeholder="Nombre o código"></label><div class="tablewrap"><table><thead><tr><th>Producto / código</th><th>Stock</th><th>Costo</th><th>Venta</th><th>Acción</th></tr></thead><tbody id="stockRows"></tbody></table></div></div>
+</section>
+<section id="page-cash" class="hidden">
+<div class="grid"><div class="card"><div class="muted">Ventas totales registradas</div><div class="stat" id="salesTotal">$0</div></div><div class="card"><div class="muted">Ganancia bruta estimada</div><div class="stat" id="profitTotal">$0</div></div><div class="card"><div class="muted">Número de ventas</div><div class="stat" id="salesCount">0</div></div></div>
+<div class="card"><h2>Resumen por medio de pago</h2><div id="paymentSummary"></div><p class="muted">La ganancia estimada resta el costo registrado de los productos vendidos. No incluye arriendo, servicios, impuestos, pérdidas ni otros gastos.</p><button class="smallbtn noprint" id="printReport">Imprimir resumen</button></div>
+<div class="card"><h2>Historial de ventas</h2><div class="tablewrap"><table><thead><tr><th>Fecha</th><th>Venta</th><th>Pago</th><th>Ganancia estimada</th></tr></thead><tbody id="salesRows"></tbody></table></div></div>
+</section>
+<section id="page-backup" class="hidden">
+<div class="card"><h2>Copias de seguridad</h2><p>Guarda una copia en un lugar seguro. Los datos de este sistema son locales y no se sincronizan automáticamente entre el computador y el celular.</p><div class="grid"><button class="btn" id="exportBackup">Descargar copia de seguridad</button><label class="smallbtn">Restaurar copia JSON<input type="file" id="importBackup" accept=".json,application/json"></label><button class="smallbtn" id="exportCsv">Exportar inventario CSV</button></div><p id="backupMessage" aria-live="polite"></p><p class="muted">Para pasar los datos al otro dispositivo, exporta la copia y transfiere el archivo por USB u otro medio seguro; luego impórtalo allí. Evita restaurar una copia antigua si tienes ventas nuevas que deseas conservar.</p></div>
+<div class="card"><h2>Limitaciones de esta versión</h2><ul><li>Necesita abrirse en el mismo navegador y dispositivo para ver los datos guardados.</li><li>No es facturación electrónica autorizada por la DIAN; el recibo es un comprobante simple.</li><li>Para impresión de recibos, usa la función de imprimir del navegador.</li><li>El lector de códigos debe actuar como teclado. La cámara del celular no está integrada en esta versión.</li></ul></div>
+</section>
+<footer>Mi Tienda POS · Versión inicial gratuita · Realiza copias de seguridad periódicas.</footer>
+</main>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(n||0);
+const KEY='miTiendaPOS_v1';
+let db={products:[],sales:[]},cart=[];
+function load(){try{const s=localStorage.getItem(KEY);if(s){const d=JSON.parse(s);if(Array.isArray(d.products)&&Array.isArray(d.sales))db=d;}}catch(e){$('storageNote').textContent='No se pudieron leer datos guardados. Exporta o revisa el navegador.'}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));$('storageNote').textContent='Guardado en este dispositivo · '+new Date().toLocaleTimeString('es-CO');}catch(e){$('storageNote').textContent='No se pudo guardar. Exporta una copia de seguridad.'}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function total(){return cart.reduce((s,x)=>s+x.price*x.qty,0)}
+function renderMatches(){const q=$('searchProduct').value.trim().toLowerCase(),box=$('productMatches');box.innerHTML='';if(!q)return;const found=db.products.filter(p=>(p.name+' '+p.code).toLowerCase().includes(q)).slice(0,20);if(!found.length){box.textContent='No se encontró el producto. Regístralo en Inventario.';return}found.forEach(p=>{const b=document.createElement('button');b.className='smallbtn full';b.style.margin='3px 0';b.textContent=p.name+' · '+p.code+' · '+money(p.price)+' · stock '+p.stock;b.onclick=()=>addCart(p);box.appendChild(b)})}
+function addCart(p){if(p.stock<1){$('saleMessage').textContent='No hay existencias disponibles.';return}let x=cart.find(x=>x.id===p.id);if(x){if(x.qty>=p.stock){$('saleMessage').textContent='No hay más unidades disponibles.';return}x.qty++}else cart.push({id:p.id,name:p.name,code:p.code,price:p.price,cost:p.cost,qty:1});$('saleMessage').textContent='Producto agregado.';renderCart()}
+function renderCart(){$('cartRows').innerHTML='';cart.forEach((x,i)=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+esc(x.name)+'<br><span class="muted">'+esc(x.code)+'</span></td><td>'+x.qty+'</td><td>'+money(x.price)+'</td><td>'+money(x.qty*x.price)+'</td><td class="noprint"><button class="smallbtn" data-remove="'+i+'">Quitar</button></td>';$('cartRows').appendChild(tr)});$('cartRows').querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>{cart.splice(Number(b.dataset.remove),1);renderCart()});$('cartTotal').textContent=$('cartTotal2').textContent=money(total());$('cartCount').textContent=cart.reduce((s,x)=>s+x.qty,0);const received=Number($('cashReceived').value);$('changeLine').textContent=$('payment').value==='Efectivo'&&received>=total()&&total()>0?'Cambio: '+money(received-total()):''}
+function renderStock(){const q=$('filterStock').value.trim().toLowerCase();$('stockRows').innerHTML='';db.products.filter(p=>(p.name+' '+p.code).toLowerCase().includes(q)).forEach(p=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+esc(p.name)+'<br><span class="muted">'+esc(p.code)+'</span>'+(p.stock<=p.min?'<br><strong class="danger">Stock bajo</strong>':'')+'</td><td>'+p.stock+'</td><td>'+money(p.cost)+'</td><td>'+money(p.price)+'</td><td><button class="smallbtn" data-restock="'+esc(p.id)+'">+ Entrada</button> <button class="smallbtn" data-edit="'+esc(p.id)+'">Editar</button></td>';$('stockRows').appendChild(tr)});$('stockRows').querySelectorAll('[data-restock]').forEach(b=>b.onclick=()=>{const p=db.products.find(p=>p.id===b.dataset.restock);const n=prompt('Unidades que ingresan para '+p.name,'1');if(n===null)return;const qty=Number(n);if(!Number.isSafeInteger(qty)||qty<1){alert('Ingresa una cantidad entera positiva.');return}p.stock+=qty;save();renderAll()});$('stockRows').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{const p=db.products.find(p=>p.id===b.dataset.edit);const price=prompt('Nuevo precio de venta para '+p.name,p.price);if(price===null)return;const v=Number(price);if(!Number.isSafeInteger(v)||v<1){alert('Precio inválido.');return}p.price=v;const cost=prompt('Nuevo costo unitario',p.cost);if(cost!==null){const c=Number(cost);if(!Number.isSafeInteger(c)||c<0){alert('Costo inválido; se conserva el anterior.')}else p.cost=c}save();renderAll()})}
+function renderReports(){const sum=db.sales.reduce((s,x)=>s+x.total,0),profit=db.sales.reduce((s,x)=>s+x.profit,0);$('salesTotal').textContent=money(sum);$('profitTotal').textContent=money(profit);$('salesCount').textContent=db.sales.length;$('paymentSummary').innerHTML='';['Efectivo','Nequi','Transferencia','Tarjeta','Otro'].forEach(m=>{const v=db.sales.filter(s=>s.payment===m).reduce((a,s)=>a+s.total,0);const p=document.createElement('p');p.textContent=m+': '+money(v);$('paymentSummary').appendChild(p)});$('salesRows').innerHTML='';db.sales.slice().reverse().slice(0,300).forEach(s=>{const tr=document.createElement('tr');tr.innerHTML='<td>'+esc(s.date)+'</td><td>'+money(s.total)+'</td><td>'+esc(s.payment)+'</td><td>'+money(s.profit)+'</td>';$('salesRows').appendChild(tr)})}
+function renderAll(){renderMatches();renderCart();renderStock();renderReports()}
+$('searchProduct').addEventListener('input',renderMatches);$('cashReceived').addEventListener('input',renderCart);$('payment').addEventListener('change',renderCart);$('filterStock').addEventListener('input',renderStock);
+$('productForm').addEventListener('submit',e=>{e.preventDefault();const name=$('pName').value.trim(),code=$('pCode').value.trim(),cost=Number($('pCost').value),price=Number($('pPrice').value),stock=Number($('pStock').value),min=Number($('pMin').value);if(!name||!code||db.products.some(p=>p.code===code)||!Number.isSafeInteger(cost)||cost<0||!Number.isSafeInteger(price)||price<1||!Number.isSafeInteger(stock)||stock<0||!Number.isSafeInteger(min)||min<0){$('productMessage').textContent='Revisa los datos. El código debe ser único y los precios/cantidades válidos.';return}db.products.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),name,code,cost,price,stock,min});save();$('productForm').reset();$('pCost').value='0';$('pStock').value='0';$('pMin').value='3';$('productMessage').textContent='Producto guardado.';renderAll()});
+$('checkout').onclick=()=>{if(!cart.length){$('saleMessage').textContent='Agrega al menos un producto.';return}for(const x of cart){const p=db.products.find(p=>p.id===x.id);if(!p||p.stock<x.qty){$('saleMessage').textContent='Existencias insuficientes para '+x.name;return}}const sum=total(),profit=cart.reduce((s,x)=>s+(x.price-x.cost)*x.qty,0),payment=$('payment').value;if(payment==='Efectivo'&&$('cashReceived').value!==''&&Number($('cashReceived').value)<sum){$('saleMessage').textContent='El dinero recibido es menor que el total.';return}const items=cart.map(x=>({...x}));items.forEach(x=>db.products.find(p=>p.id===x.id).stock-=x.qty);const sale={id:String(Date.now()),date:new Date().toLocaleString('es-CO'),total:sum,profit,payment,items};db.sales.push(sale);save();cart=[];renderAll();$('saleMessage').textContent='Venta guardada correctamente.';const receipt=$('receiptPrint');receipt.classList.remove('hidden');receipt.innerHTML='<h2>Mi Tienda</h2><p>Comprobante de venta · '+esc(sale.date)+'</p><hr>'+items.map(x=>'<p>'+esc(x.name)+' × '+x.qty+' — '+money(x.price*x.qty)+'</p>').join('')+'<hr><h3>TOTAL: '+money(sum)+'</h3><p>Pago: '+esc(payment)+'</p><p>¡Gracias por su compra!</p><button class="btn noprint" onclick="window.print()">Imprimir recibo</button>';};
+$('clearCart').onclick=()=>{cart=[];renderCart();$('saleMessage').textContent='Carrito vacío.'};
+document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x===b));['sales','products','cash','backup'].forEach(p=>$('page-'+p).classList.toggle('hidden',p!==b.dataset.page));});
+function download(name,content,type){const a=document.createElement('a');const u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+$('exportBackup').onclick=()=>{download('mi_tienda_copia_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db,null,2),'application/json');$('backupMessage').textContent='Copia descargada.'};
+$('importBackup').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.products)||!Array.isArray(d.sales))throw Error();if(!confirm('La restauración reemplazará los datos actuales. ¿Continuar?'))return;db=d;save();renderAll();$('backupMessage').textContent='Copia restaurada.'}catch(err){$('backupMessage').textContent='Archivo inválido; no se cambiaron los datos.'}e.target.value=''};
+$('exportCsv').onclick=()=>{const rows=[['Nombre','Código','Costo','Precio','Stock','Stock mínimo'],...db.products.map(p=>[p.name,p.code,p.cost,p.price,p.stock,p.min])];download('inventario_mi_tienda.csv','\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n'),'text/csv;charset=utf-8')};
+$('printReport').onclick=()=>window.print();
+load();renderAll();
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.log('Modo sin conexión no disponible aún:', err));
+  });
+}
+</script>
+
+</body></html>
