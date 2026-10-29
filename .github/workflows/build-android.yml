@@ -37,4 +37,16 @@ jobs:
           cp -R android_project/. .
 
           if [ ! -f "app/build.gradle" ]; then
-            echo
+            echo "ERROR: No se encontró app/build.gradle"
+            find . -maxdepth 3 -type f
+            exit 1
+          fi
+
+      - name: Compilar APK
+        run: gradle assembleDebug
+
+      - name: Guardar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mi-Tienda-POS-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
